@@ -1,0 +1,69 @@
+#!/bin/bash
+# This script is an alternative version of psf that also prints the header
+
+
+procname=""
+DETAILS=0
+COMPLEX=0
+
+helptext=$(
+cat << bingus
+Usage: searchps [OPTION]... [PROCESSNAME]...
+Searches the processes on the system similar to pgrep -f or psf
+
+    -d, --details         Provides more information about the processes
+    -c, --complex         Provides a massive amount of information about the processes
+bingus
+)
+
+
+while [[ "$#" -gt 0 ]]
+do case $1 in
+	-d|--details)
+		DETAILS=1
+		COMPLEX=0
+	;;
+	-c|--complex)
+		COMPLEX=1
+		DETAILS=0
+	;;
+	-h|--help)
+		echo $helptext
+		exit 0
+	;;
+	*)
+		if [[ $1 =~ "^-.*" ]]; then
+			echo "Unknown parameter passed: $1"
+			exit 1
+		else
+			procname="$1"
+		fi
+	;;
+esac
+shift
+done
+
+endprocessing () {
+	awk -v procname="$procname" 'NR == 1 || tolower($0) ~ tolower(procname)' | grep -E -v "/bin/zsh.*searchps|awk -v procname|grep -iE --color" | grep -iE --color "$procname|$"
+}
+
+if [[ $1 = "" && $procname = "" ]]; then
+	echo "No process name provided"
+	exit 1
+fi
+
+if [[ $DETAILS -eq 1 ]]; then
+	ps -eo uname,egroup,pid,etime,start,stat,tty,cmd | endprocessing
+elif [[ $COMPLEX -eq 1 ]]; then
+	ps -eo uname,pid,ppid,pcpu,thcount,pmem,vsize,etime,start,stat,tname,cmd | endprocessing
+else
+	ps -ef | endprocessing
+fi
+
+
+
+
+
+
+
+

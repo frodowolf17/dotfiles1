@@ -1,0 +1,66 @@
+#!/bin/zsh
+# This script will highlight the provided regex in the output
+#
+# $1 is the color
+# $2 is the regex to highlight
+# $3 is bold (1), underline (4), slow blink (5), swap fg/bg (7), crossed out (9), or no formatting (0), defaults to bold 
+formatting=bold
+
+helptext=$(
+cat << epicbeans
+Usage: highlite [COLOR] [REGEX] [FORMATTING]
+
+Colors: (b stands for bright)
+black, red, green, yellow, blue, magenta, cyan
+bblack, bred, bgreen, byellow, bblue, bmagenta, bcyan
+
+Formatting options:
+none, bold,, underline, blink, swap, crossed
+epicbeans
+)
+
+if [[ $1 = "" || $2 = "" ]]; then
+	echo $helptext
+	exit 1
+fi
+
+if [[ $1 = "-h" || $1 = "--help" ]]; then
+	echo $helptext
+	exit 1
+fi
+
+if [[ $3 != "" ]]; then
+	formatting=$3
+fi
+
+
+declare -A fg_color_map
+fg_color_map[black]=30
+fg_color_map[red]=31
+fg_color_map[green]=32
+fg_color_map[yellow]=33
+fg_color_map[blue]=34
+fg_color_map[magenta]=35
+fg_color_map[cyan]=36
+fg_color_map[bblack]=90
+fg_color_map[bred]=91
+fg_color_map[bgreen]=92
+fg_color_map[byellow]=93
+fg_color_map[bblue]=94
+fg_color_map[bmagenta]=95
+fg_color_map[bcyan]=96
+declare -A format_map
+format_map[none]=0
+format_map[bold]=1
+format_map[underline]=4
+format_map[blink]=5
+format_map[swap]=7
+format_map[crossed]=9
+
+
+fg_c=$(echo -e "\e[${format_map[$formatting]};${fg_color_map[$1]}m")
+c_rs=$'\e[0m'
+#sed -uE "s/$2/$fg_c\0$c_rs/g"
+sed -uE "s@$2@$fg_c\0$c_rs@g"
+
+

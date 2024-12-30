@@ -1,0 +1,108 @@
+#!/bin/sh
+
+# nice little functions
+viewpath () {
+	echo $PATH | sed 's/:/\n/g'
+}
+
+
+csvcols () {
+	column -t -s ',' $1	
+}
+
+
+longsearch () {
+	ls -lhrta --color=auto *$1*
+}
+
+
+removeleading () {
+	sed "s/^ *//g"
+}
+
+
+removetrailing () {
+	sed "s/ *$//g"
+}
+
+removesurrounding () {
+	sed -e "s/ *$//g" -e "s/^ *//g"
+}
+
+spacestonewlines () {
+	sed 's/ /\n/g'
+}
+
+
+niceoutput () {
+	seperator="$1"
+	header="$2"
+	file="$3"
+	echo -e "$header\n$(cat $file)" | column -ts "$1" -o " $(printf '\u2503')"
+
+}
+
+
+hardwareusage () {
+	vmstat -s
+	free -m
+}
+
+top10mem () {
+	ps -aux --sort=-%mem | head
+}
+
+
+recentlogins () {
+	last | egrep "$(date | awk '{print $1, $2, $3}')|$(date -d "yesterday" | awk '{print $1, $2, $3}')"	
+
+}
+
+
+surroundregex () {
+	sed -E "s/$1/$2\0$2/g"
+}
+
+
+userprocs () {
+	if [[ $1 = "" ]]; then
+		user=$(whoami)
+	else
+		user="$1"
+	fi
+	procsnum=$(ps -u $user | wc -l)
+	threadsnum=$(ps -Tu $user | wc -l)
+	echo "$user procs: $procsnum"
+	echo "$user threads: $threadsnum"
+}
+
+
+histgrep () {
+  local n_lines=10
+  if [[ "$1" =~ ^[0-9]*$ ]]; then
+    n_lines="$1"
+    shift
+  fi
+  grep "$@" ~/.full_history | tail -n "$n_lines"
+}
+
+
+
+# Sed surround text in place
+#	echo "testing100testing" | sed -E 's/[0-9]{3}/\(\0\)/g'
+#
+
+# Awk extract substring matching regex from string
+#
+#	echo "beans gmpd" | awk '{ match($0, /gmp.*$/); {print substr($0,RSTART,RLENGTH)}}'
+#
+
+# networking commands to use
+#
+# ping
+# arping
+# tracepath
+# nmap
+# ncat
+
+

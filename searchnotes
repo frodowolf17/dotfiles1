@@ -1,0 +1,67 @@
+#!/bin/zsh
+# This script searches the provided notes directories and files specified in notesfiles.txt
+
+FILEREGEX=""
+USEFILEREGEX=0
+SEARCHTERM=""
+DIR=$(pwd)
+NOTESDIR="/home/nick/notes"
+NOTESFILELIST="/home/nick/notesfiles.txt"
+
+while [[ "$#" -gt 0 ]] 
+do case $1 in
+	-f|--filename)
+		shift
+		FILEREGEX=$1
+		USEFILEREGEX=1
+	;;
+	-h|--help)
+		echo "Usage: searchnotes [OPTION]... [FILE]..."	
+		echo "Searches the notes directories and files specified in notesfiles.txt"	
+		echo ""
+		echo "  -f [regex]       search files with name matching regex"
+		echo ""
+		exit 0
+	;;
+	*)
+		if [[ "$#" -gt 1 ]]; then
+			echo "Unknown parameter passed: $1"
+			exit 1
+		else
+			SEARCHTERM=$1
+		fi
+	;;
+esac
+shift
+done
+
+
+cd "$NOTESDIR"
+text=$(< $NOTESFILELIST)
+textarr=(${(f)=text})
+SEARCHTERMLOWER="${SEARCHTERM:l}"
+
+for notesfile in $textarr; do
+	if [[ $USEFILEREGEX -eq 1 && ( ! $notesfile =~ "$FILEREGEX") ]]; then
+		echo "Skipping $notesfile"
+		continue
+	fi
+	searchresult=$(awk -v s=$SEARCHTERM 'BEGIN{RS="(#|=|-|+){8,}"} {if(tolower($0) ~ s){print pRT$0}{pRT=RT}}' $notesfile | grep -iE --color=auto "$SEARCHTERM|$")
+	if [[ $searchresult != ""]]; then
+		echo "+++++++++++++++++++++++++++++++++++++++++++++++++++"
+		#printf "%.s+" $(seq 1 $(tput cols))
+		echo ""
+		echo "\033[1;4m$notesfile\033[0m"
+		echo ""
+		echo "+++++++++++++++++++++++++++++++++++++++++++++++++++"
+		#printf "%.s+" $(seq 1 $(tput cols))
+		echo ""
+		echo $searchresult | sed -uE -e "s/$SEARCHTERM/$(echo -e "\e[1;31m")\0$(echo -e "\e[0m")/g" -e "s/(#|=|-|\+){8,}/$(echo -e "\e[1;34m")\0$(echo -e "\e[0m")/gi"
+		echo -e "\e[1;34m===============================\e[0m"
+	fi
+done
+
+cd $DIR
+
+
+
