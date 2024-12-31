@@ -1,0 +1,11 @@
+#!/bin/bash
+# This is a test for dashboards
+while true; do
+	clear
+	date
+	echo "------------- Memory -------------"
+	free -h
+	echo ""
+	echo "Use Ctrl-C to exit"
+	sleep 5
+done

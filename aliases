@@ -87,6 +87,37 @@ histgrep () {
 }
 
 
+findservice () {
+if [[ $1 = "" ]]; then
+	echo "No string to search for provided"
+	return 1
+fi
+
+echo "Systemctl info for $1 on $(hostname)"
+echo "---------------------------------------"
+echo "--- Running ---"
+systemctl --type=service --state=running | grep -iE --color=auto "$1"
+echo "---------------------------------------"
+echo "--- All ---"
+systemctl --type=service --all | grep -iE --color=auto "$1"
+echo "---------------------------------------"
+echo "--- Running ---"
+systemctl list-unit-files | grep -iE --color=auto "$1"
+echo "---------------------------------------"
+}
+
+
+downloadrfc () {
+if [[ ! -d ~/rfc ]]; then
+	echo "RFC directory doesn't exist, please create it at ~/rfc"
+	return 0
+fi
+if wget --spider "https://www.rfceditor.org/rfc/rfc$1.txt" > /dev/null 2>&1; then
+	wget -qcO ~/rfc/ "https://www.rfc-editor.org/rfc/rfc$1.txt"
+fi
+}
+
+
 
 # Sed surround text in place
 #	echo "testing100testing" | sed -E 's/[0-9]{3}/\(\0\)/g'
