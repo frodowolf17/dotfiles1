@@ -117,6 +117,13 @@ if wget --spider "https://www.rfceditor.org/rfc/rfc$1.txt" > /dev/null 2>&1; the
 fi
 }
 
+mansearch () {
+# Requires fzf
+if ! which fzf; then
+	echo "fzf not installed, please install"
+fi
+man -k . | fzf | awk '{print $1}' | xargs man
+}
 
 
 # Sed surround text in place
