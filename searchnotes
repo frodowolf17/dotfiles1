@@ -61,7 +61,7 @@ for notesfile in $textarr; do
 	fi
 done
 
-cd $DIR
+cd "$DIR"
 
 
 
