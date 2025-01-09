@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Env variables
+BROWSERTOUSE="firefox --new-tab"
+
 # nice little functions
 viewpath () {
 	echo $PATH | sed 's/:/\n/g'
@@ -117,12 +120,35 @@ if wget --spider "https://www.rfceditor.org/rfc/rfc$1.txt" > /dev/null 2>&1; the
 fi
 }
 
+
 mansearch () {
 # Requires fzf
 if ! which fzf; then
 	echo "fzf not installed, please install"
 fi
 man -k . | fzf | awk '{print $1}' | xargs man
+}
+
+
+manname () {
+# Requires fzf
+if ! which fzf; then
+	echo "fzf not installed, please install"
+fi
+man -k . | fzf | awk '{print $1}' | xargs man
+}
+
+
+getrfcindex () {
+	curl https://www.rfc-editor.org/rfc-index.txt | awk 'NR > 66' > $HOME/rfc/rfcindex.txt
+}
+
+searchrfcindex () {
+	awk -v RS= -v FS="\(Format" '{sub(/\n/,"",$1);sub(/ {4,}/,"",$1);print $1}' $HOME/rfc/rfcindex.txt | fzf
+}
+
+webman () {
+	$BROWSERTOUSE "https://manned.org/man/fedora-41/$1"
 }
 
 
